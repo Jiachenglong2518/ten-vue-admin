@@ -87,6 +87,158 @@ const dashboardMenus = [
   },
 ];
 
+/** 与 web-antd「演示 / 功能」子路由一致 */
+const featuresDemoMenus = {
+  name: 'FeaturesDemos',
+  path: '/demos/features',
+  meta: {
+    icon: 'mdi:feature-highlight',
+    title: 'demos.features.title',
+  },
+  redirect: '/demos/features/login-expired',
+  children: [
+    {
+      name: 'LoginExpiredDemo',
+      path: '/demos/features/login-expired',
+      component: '/demos/features/login-expired/index',
+      meta: {
+        icon: 'mdi:encryption-expiration',
+        title: 'demos.features.loginExpired',
+      },
+    },
+    {
+      name: 'IconsDemo',
+      path: '/demos/features/icons',
+      component: '/demos/features/icons/index',
+      meta: {
+        icon: 'lucide:annoyed',
+        title: 'demos.features.icons',
+      },
+    },
+    {
+      name: 'WatermarkDemo',
+      path: '/demos/features/watermark',
+      component: '/demos/features/watermark/index',
+      meta: {
+        icon: 'lucide:tags',
+        title: 'demos.features.watermark',
+      },
+    },
+    {
+      name: 'FeatureTabsDemo',
+      path: '/demos/features/tabs',
+      component: '/demos/features/tabs/index',
+      meta: {
+        icon: 'lucide:app-window',
+        title: 'demos.features.tabs',
+      },
+    },
+    {
+      name: 'HideChildrenInMenuParentDemo',
+      path: '/demos/features/hide-menu-children',
+      meta: {
+        hideChildrenInMenu: true,
+        icon: 'ic:round-menu',
+        title: 'demos.features.hideChildrenInMenu',
+      },
+      redirect: '/demos/features/hide-menu-children',
+      children: [
+        {
+          name: 'HideChildrenInMenuDemo',
+          path: '',
+          component: '/demos/features/hide-menu-children/parent',
+          meta: {
+            title: 'demos.features.hideChildrenInMenu',
+          },
+        },
+        {
+          name: 'HideChildrenInMenuChildrenDemo',
+          path: '/demos/features/hide-menu-children/children',
+          component: '/demos/features/hide-menu-children/children',
+          meta: {
+            activePath: '/demos/features/hide-menu-children',
+            title: 'demos.features.hideChildrenInMenu',
+          },
+        },
+      ],
+    },
+    {
+      name: 'FullScreenDemo',
+      path: '/demos/features/full-screen',
+      component: '/demos/features/full-screen/index',
+      meta: {
+        icon: 'lucide:fullscreen',
+        title: 'demos.features.fullScreen',
+      },
+    },
+    {
+      name: 'FileDownloadDemo',
+      path: '/demos/features/file-download',
+      component: '/demos/features/file-download/index',
+      meta: {
+        icon: 'lucide:hard-drive-download',
+        title: 'demos.features.fileDownload',
+      },
+    },
+    {
+      name: 'ClipboardDemo',
+      path: '/demos/features/clipboard',
+      component: '/demos/features/clipboard/index',
+      meta: {
+        icon: 'lucide:copy',
+        title: 'demos.features.clipboard',
+      },
+    },
+    {
+      name: 'MenuQueryDemo',
+      path: '/demos/menu-query',
+      component: '/demos/features/menu-query/index',
+      meta: {
+        icon: 'lucide:curly-braces',
+        query: { id: 1 },
+        title: 'demos.features.menuWithQuery',
+      },
+    },
+    {
+      name: 'NewWindowDemo',
+      path: '/demos/new-window',
+      component: '/demos/features/new-window/index',
+      meta: {
+        icon: 'lucide:app-window',
+        openInNewWindow: true,
+        title: 'demos.features.openInNewWindow',
+      },
+    },
+    {
+      name: 'VueQueryDemo',
+      path: '/demos/features/vue-query',
+      component: '/demos/features/vue-query/index',
+      meta: {
+        icon: 'lucide:git-pull-request-arrow',
+        title: 'demos.features.vueQuery',
+      },
+    },
+    {
+      name: 'RequestParamsSerializerDemo',
+      path: '/demos/features/request-params-serializer',
+      component: '/demos/features/request-params-serializer/index',
+      meta: {
+        icon: 'lucide:git-pull-request-arrow',
+        title: 'demos.features.requestParamsSerializer',
+      },
+    },
+    {
+      name: 'BigIntDemo',
+      path: '/demos/features/json-bigint',
+      component: '/demos/features/json-bigint/index',
+      meta: {
+        icon: 'lucide:grape',
+        title: 'demos.features.jsonBigint',
+      },
+    },
+  ],
+};
+
 const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
   const roleWithMenus = {
     admin: {
@@ -128,11 +280,11 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
       },
       name: 'Demos',
       path: '/demos',
-      redirect: '/demos/access',
+      redirect: '/demos/access/page-control',
       children: [
         {
           name: 'AccessDemos',
-          path: '/demosaccess',
+          path: '/demos/access',
           meta: {
             icon: 'mdi:cloud-key-outline',
             title: 'demos.access.backendPermissions',
@@ -170,6 +322,25 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
             },
             roleWithMenus[role],
           ],
+        },
+        featuresDemoMenus,
+        {
+          name: 'AntDesignDemos',
+          path: '/demos/ant-design',
+          component: '/demos/antd/index',
+          meta: {
+            icon: 'mdi:alpha-a-circle-outline',
+            title: 'demos.antd',
+          },
+        },
+        {
+          name: 'ErrorLogDemo',
+          path: '/demos/error-log',
+          component: '/demos/error-log/index',
+          meta: {
+            icon: 'mdi:bug-outline',
+            title: 'demos.errorLog.title',
+          },
         },
       ],
     },

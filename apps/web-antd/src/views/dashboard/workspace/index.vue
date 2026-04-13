@@ -103,13 +103,13 @@ const quickNavItems: WorkbenchQuickNavItem[] = [
     color: '#e18525',
     icon: 'ion:layers-outline',
     title: '组件',
-    url: '/demos/features/icons',
+    url: '/demos/ant-design',
   },
   {
     color: '#3fb27f',
     icon: 'ion:settings-outline',
-    title: '系统管理',
-    url: '/demos/features/login-expired', // 这里的 URL 是示例，实际项目中需要根据实际情况进行调整
+    title: '登录过期示例',
+    url: '/demos/features/login-expired',
   },
   {
     color: '#4daf1bc9',

@@ -14,6 +14,7 @@ import { $t, setupI18n } from '#/locales';
 import { initComponentAdapter } from './adapter/component';
 import { initSetupVbenForm } from './adapter/form';
 import App from './app.vue';
+import { setupErrorLogDemoCapture } from './bootstrap/error-log-demo';
 import { router } from './router';
 
 async function bootstrap(namespace: string) {
@@ -46,6 +47,9 @@ async function bootstrap(namespace: string) {
   // 配置 pinia-tore
   await initStores(app, { namespace });
 
+  // 开发环境：错误日志示例（与 vben-admin-thin-next 行为类似）
+  setupErrorLogDemoCapture(app);
+
   // 安装权限指令
   registerAccessDirective(app);
 
@@ -55,6 +59,9 @@ async function bootstrap(namespace: string) {
 
   // 配置路由及路由守卫
   app.use(router);
+
+  const { VueQueryPlugin } = await import('@tanstack/vue-query');
+  app.use(VueQueryPlugin);
 
   // 配置Motion插件
   const { MotionPlugin } = await import('@vben/plugins/motion');

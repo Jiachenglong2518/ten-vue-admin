@@ -667,6 +667,9 @@ importers:
 
   apps/web-antd:
     dependencies:
+      '@tanstack/vue-query':
+        specifier: 'catalog:'
+        version: 5.96.0(vue@3.5.32(typescript@6.0.2))
       '@vben/access':
         specifier: workspace:*
         version: link:../../packages/effects/access
@@ -718,6 +721,9 @@ importers:
       dayjs:
         specifier: 'catalog:'
         version: 1.11.20
+      json-bigint:
+        specifier: 'catalog:'
+        version: 1.0.0
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
@@ -727,6 +733,10 @@ importers:
       vue-router:
         specifier: 'catalog:'
         version: 5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
+    devDependencies:
+      '@types/json-bigint':
+        specifier: 'catalog:'
+        version: 1.0.4
 
   apps/web-antdv-next:
     dependencies:
