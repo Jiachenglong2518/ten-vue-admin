@@ -16,10 +16,10 @@ async function runLint({ format }: LintCommandOptions) {
     await execaCommand(`stylelint "**/*.{vue,css,less,scss}" --cache --fix`, {
       stdio: 'inherit',
     });
-    await execaCommand(`oxfmt`, {
+    await execaCommand(`oxfmt --threads=4`, {
       stdio: 'inherit',
     });
-    await execaCommand(`oxlint --fix`, {
+    await execaCommand(`oxlint --threads=4 --fix`, {
       stdio: 'inherit',
     });
     await execaCommand(`eslint . --cache --fix`, {
@@ -28,10 +28,10 @@ async function runLint({ format }: LintCommandOptions) {
     return;
   }
   await Promise.all([
-    execaCommand(`oxfmt --check`, {
+    execaCommand(`oxfmt --threads=4 --check`, {
       stdio: 'inherit',
     }),
-    execaCommand(`oxlint`, {
+    execaCommand(`oxlint --threads=4`, {
       stdio: 'inherit',
     }),
     execaCommand(`eslint . --cache`, {

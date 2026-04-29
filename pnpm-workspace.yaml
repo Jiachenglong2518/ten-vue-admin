@@ -42,6 +42,7 @@ catalog:
   '@nolebase/vitepress-plugin-git-changelog': ^2.18.2
   '@playwright/test': ^1.58.2
   '@pnpm/workspace.read-manifest': ^1000.3.1
+  relation-graph: ^2.2.11
   '@stylistic/stylelint-plugin': ^5.1.0
   '@tailwindcss/typography': ^0.5.19
   '@tailwindcss/vite': ^4.2.2

@@ -41,28 +41,30 @@
 #     - script: "hello.go"
 #       runner: go run
 
+# Sequential pre-commit: avoids concurrent oxfmt+oxlint (Oxc) across lint-vue/lint-js on low-memory Windows.
 pre-commit:
-  parallel: true
+  parallel: false
   commands:
     code-workspace:
       run: pnpm vsh code-workspace --auto-commit
     lint-md:
-      run: pnpm oxfmt {staged_files}
+      run: pnpm exec oxfmt --threads=1 {staged_files}
       glob: '*.md'
     lint-vue:
-      run: pnpm oxfmt {staged_files} && pnpm oxlint --fix {staged_files} && pnpm eslint --cache --fix {staged_files} && pnpm stylelint --fix --allow-empty-input {staged_files}
+      run: pnpm exec oxfmt --threads=1 {staged_files} && pnpm exec oxlint --threads=1 --fix {staged_files} && pnpm eslint --cache --fix {staged_files} && pnpm stylelint --fix --allow-empty-input {staged_files}
       glob: '*.vue'
     lint-js:
-      run: pnpm oxfmt {staged_files} && pnpm oxlint --fix {staged_files} && pnpm eslint --cache --fix {staged_files}
+      run: pnpm exec oxfmt --threads=1 {staged_files} && pnpm exec oxlint --threads=1 --fix {staged_files} && pnpm eslint --cache --fix {staged_files}
       glob: '*.{js,jsx,ts,tsx}'
     lint-style:
-      run: pnpm oxfmt {staged_files} && pnpm stylelint --fix --allow-empty-input {staged_files}
-      glob: '*.{scss,less,styl,html,vue,css}'
+      run: pnpm exec oxfmt --threads=1 {staged_files} && pnpm stylelint --fix --allow-empty-input {staged_files}
+      # Exclude vue: *.vue is handled by lint-vue to avoid duplicate parallel oxfmt/stylelint with Oxlint's default high thread count.
+      glob: '*.{scss,less,styl,html,css}'
     lint-package:
-      run: pnpm oxfmt {staged_files}
+      run: pnpm exec oxfmt --threads=1 {staged_files}
       glob: 'package.json'
     lint-json:
-      run: pnpm oxfmt {staged_files}
+      run: pnpm exec oxfmt --threads=1 {staged_files}
       glob: '{!(package)*.json,*.code-snippets,.!(browserslist)*rc}'
 
 post-merge:

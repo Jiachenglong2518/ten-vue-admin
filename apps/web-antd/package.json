@@ -26,6 +26,7 @@
     "#/*": "./src/*"
   },
   "dependencies": {
+    "relation-graph": "catalog:",
     "@tanstack/vue-query": "catalog:",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",

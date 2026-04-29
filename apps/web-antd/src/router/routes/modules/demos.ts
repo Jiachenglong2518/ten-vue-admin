@@ -112,6 +112,16 @@ const routes: RouteRecordRaw[] = [
             },
           },
           {
+            name: 'RelationGraphDemo',
+            path: '/demos/features/relation-graph',
+            component: () =>
+              import('#/views/demos/features/relation-graph/index.vue'),
+            meta: {
+              icon: 'mdi:graph-outline',
+              title: $t('demos.features.relationGraph'),
+            },
+          },
+          {
             name: 'WatermarkDemo',
             path: '/demos/features/watermark',
             component: () =>

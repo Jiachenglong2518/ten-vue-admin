@@ -34,7 +34,7 @@ export async function typescript(): Promise<Linter.Config[]> {
           ecmaVersion: 'latest',
           extraFileExtensions: ['.vue'],
           jsxPragma: 'React',
-          project: './tsconfig.*.json',
+          projectService: true,
           sourceType: 'module',
         },
       },
