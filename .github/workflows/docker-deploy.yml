@@ -1,0 +1,74 @@
+name: Docker Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  docker-deploy:
+    name: Deploy Docker Container
+    if: github.actor != 'dependabot[bot]' && !contains(github.event.head_commit.message, '[skip ci]')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./scripts/deploy/Dockerfile
+        tags: ten-vue-admin:latest
+        load: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Save Docker image
+      run: docker save ten-vue-admin:latest -o ten-vue-admin.tar
+      
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: ten-vue-admin.tar
+        retention-days: 1
+        
+    - name: Deploy to server
+      uses: appleboy/scp-action@v0.1.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "ten-vue-admin.tar"
+        target: "/tmp/"
+        
+    - name: Run deployment script on server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /app/ten-vue-admin
+          # 停止并删除旧容器
+          docker stop ten-vue-admin || true
+          docker rm ten-vue-admin || true
+          # 加载新镜像
+          docker load -i /tmp/ten-vue-admin.tar
+          # 启动新容器
+          docker run -d \
+            --name ten-vue-admin \
+            -p 8080:80 \
+            --restart unless-stopped \
+            ten-vue-admin:latest
+          # 清理临时文件
+          rm -f /tmp/ten-vue-admin.tar
+          echo "Docker deployment completed successfully!"
+          echo "Service available at: http://${{ secrets.SERVER_HOST }}:8080"
