@@ -25,14 +25,14 @@ if (import.meta.env.PROD) {
   const base = swPath === 0 ? '/' : self.location.pathname.slice(0, swPath + 1);
 
   function escapeStringRegexp(value: string) {
-    return value
-      .replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-      .replace(/-/g, '\\x2d');
+    return value.replaceAll(/[|\\{}()[\]^$+*?.]/g, String.raw`\$&`).replaceAll('-', String.raw`\x2d`);
   }
 
   allowlist = entries
     .filter((page) =>
-      typeof page === 'string' ? page.endsWith('.html') : page.url.endsWith('.html'),
+      typeof page === 'string'
+        ? page.endsWith('.html')
+        : page.url.endsWith('.html'),
     )
     .map((page) => {
       const url = typeof page === 'string' ? page : page.url;
@@ -41,7 +41,7 @@ if (import.meta.env.PROD) {
           ? escapeStringRegexp(base)
           : escapeStringRegexp(`${base}${url.replace(/\.html$/, '')}`);
 
-      return new RegExp(`^${regex}(\\.html)?$`);
+      return new RegExp(String.raw`^${regex}(\.html)?$`);
     });
 
   registerRoute(
