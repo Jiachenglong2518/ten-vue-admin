@@ -32,6 +32,10 @@
     "@vben/vite-config": "workspace:*",
     "@vite-pwa/vitepress": "catalog:",
     "vitepress": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "workbox-core": "7.4.0",
+    "workbox-precaching": "7.4.0",
+    "workbox-routing": "7.4.0",
+    "workbox-strategies": "7.4.0"
   }
 }

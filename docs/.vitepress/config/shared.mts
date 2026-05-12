@@ -140,6 +140,7 @@ function head(): HeadConfig[] {
 function pwa(): PwaOptions {
   return {
     includeManifestIcons: false,
+    filename: 'sw.ts',
     manifest: {
       description:
         'Vben Admin is a modern admin dashboard template based on Vue 3. ',
@@ -160,11 +161,12 @@ function pwa(): PwaOptions {
       short_name: 'vben_admin_doc',
       theme_color: '#ffffff',
     },
+    srcDir: '../.vitepress',
+    strategies: 'injectManifest',
     outDir: resolve(process.cwd(), '.vitepress/dist'),
     registerType: 'autoUpdate',
-    workbox: {
+    injectManifest: {
       globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
-      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
     },
   };
 }
