@@ -25,7 +25,9 @@ if (import.meta.env.PROD) {
   const base = swPath === 0 ? '/' : self.location.pathname.slice(0, swPath + 1);
 
   function escapeStringRegexp(value: string) {
-    return value.replaceAll(/[|\\{}()[\]^$+*?.]/g, String.raw`\$&`).replaceAll('-', String.raw`\x2d`);
+    return value
+      .replaceAll(/[|\\{}()[\]^$+*?.]/g, String.raw`\$&`)
+      .replaceAll('-', String.raw`\x2d`);
   }
 
   allowlist = entries
