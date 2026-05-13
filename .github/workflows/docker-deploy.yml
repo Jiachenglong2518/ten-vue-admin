@@ -25,13 +25,13 @@ jobs:
       with:
         context: .
         file: ./scripts/deploy/Dockerfile
-        tags: ten-vue-admin:latest
+        tags: ten-vue-admin-web-antd:latest
         load: true
         cache-from: type=gha
         cache-to: type=gha,mode=max
         
     - name: Save Docker image
-      run: docker save ten-vue-admin:latest -o ten-vue-admin.tar
+      run: docker save ten-vue-admin-web-antd:latest -o ten-vue-admin.tar
       
     - name: Upload Docker image artifact
       uses: actions/upload-artifact@v4
@@ -67,7 +67,7 @@ jobs:
             --name ten-vue-admin \
             -p 8080:80 \
             --restart unless-stopped \
-            ten-vue-admin:latest
+            ten-vue-admin-web-antd:latest
           # 清理临时文件
           rm -f /tmp/ten-vue-admin.tar
           echo "Docker deployment completed successfully!"
