@@ -240,7 +240,7 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
     >
       <template #title>
         早安, {{ userStore.userInfo?.realName }}, 开始您一天的工作吧！测试git
-        actions + 1
+        actions + 1 + 测试部署优化后速度
       </template>
       <template #description> 今日晴，20℃ - 32℃！ </template>
     </WorkbenchHeader>
