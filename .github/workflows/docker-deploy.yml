@@ -1,9 +1,45 @@
+# =============================================================================
+# Docker 部署工作流（GHCR push/pull）
+# =============================================================================
+# 用途：将 apps/web-antd 构建为 Docker 镜像，推送到 GitHub Container Registry，
+#       再由腾讯云服务器 docker pull 拉取并启动。
+#
+# 部署架构：
+#   GitHub Actions (构建 + push) → GHCR → 腾讯云服务器 (docker pull + run)
+#
+# 访问地址：http://<SERVER_HOST>:8080
+#
+# 所需 GitHub Secrets（Settings → Secrets and variables → Actions）：
+#   SERVER_HOST     - 腾讯云服务器 IP 或域名
+#   SERVER_USER     - SSH 登录用户名
+#   SERVER_SSH_KEY  - SSH 私钥（完整 PEM 内容）
+#   GHCR_USERNAME   - GitHub 用户名（用于服务器 docker login）
+#   GHCR_TOKEN      - GitHub PAT，勾选 read:packages（用于服务器 docker pull）
+#
+# 服务器前置条件：
+#   1. 已安装 Docker
+#   2. 已创建目录 /app/ten-vue-admin
+#   3. 防火墙/安全组已放行 8080 端口
+#   4. 若镜像为 private，需先用 GHCR_USERNAME + GHCR_TOKEN 登录 ghcr.io
+#
+# 镜像地址：
+#   ghcr.io/<github用户名>/ten-vue-admin-web-antd:latest
+# =============================================================================
+
 name: Docker Deploy to Server
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ten-vue-admin-web-antd
 
 jobs:
   docker-deploy:
@@ -12,63 +48,86 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # -------------------------------------------------------------------------
+    # 1. 拉取代码
+    # -------------------------------------------------------------------------
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
+    # GHCR 要求镜像名小写
+    - name: Set image owner (lowercase)
+      run: echo "IMAGE_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
+    # -------------------------------------------------------------------------
+    # 2. 安装 Docker Buildx
+    # -------------------------------------------------------------------------
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build Docker image
+    # -------------------------------------------------------------------------
+    # 3. 登录 GHCR（使用 GITHUB_TOKEN 推送镜像）
+    # -------------------------------------------------------------------------
+    - name: Login to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # -------------------------------------------------------------------------
+    # 4. 构建并推送镜像到 GHCR
+    # 不再 docker save + SCP，改为 push 到 registry，服务器 pull 增量层
+    # -------------------------------------------------------------------------
+    - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./scripts/deploy/Dockerfile
-        tags: ten-vue-admin-web-antd:latest
-        load: true
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Save and compress Docker image
-      run: docker save ten-vue-admin-web-antd:latest | gzip -1 > ten-vue-admin.tar.gz
-
-    - name: Upload Docker image artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-image
-        path: ten-vue-admin.tar.gz
-        retention-days: 1
-
-    - name: Deploy to server
-      uses: appleboy/scp-action@v0.1.3
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "ten-vue-admin.tar.gz"
-        target: "/tmp/"
-
-    - name: Run deployment script on server
+    # -------------------------------------------------------------------------
+    # 5. SSH 远程拉取镜像并启动容器
+    # -------------------------------------------------------------------------
+    - name: Deploy on server
       uses: appleboy/ssh-action@v1.0.3
+      env:
+        REGISTRY: ${{ env.REGISTRY }}
+        IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE_NAME }}:latest
+        GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
+        envs: REGISTRY,IMAGE,GHCR_USERNAME,GHCR_TOKEN
         script: |
           cd /app/ten-vue-admin
+
+          # 登录 GHCR（私有镜像必须；公开镜像也建议登录以提高 pull 限额）
+          echo "$GHCR_TOKEN" | docker login "$REGISTRY" -u "$GHCR_USERNAME" --password-stdin
+
+          # 拉取最新镜像（只下载变更层，比 SCP 整包快很多）
+          docker pull "$IMAGE"
+
           # 停止并删除旧容器
           docker stop ten-vue-admin || true
           docker rm ten-vue-admin || true
-          # 解压并加载新镜像
-          gzip -dc /tmp/ten-vue-admin.tar.gz | docker load
+
           # 启动新容器
           docker run -d \
             --name ten-vue-admin \
             -p 8080:80 \
             --restart unless-stopped \
-            ten-vue-admin-web-antd:latest
-          # 清理临时文件
-          rm -f /tmp/ten-vue-admin.tar.gz
+            "$IMAGE"
+
+          # 清理 dangling 镜像，避免磁盘占满
+          docker image prune -f
+
           echo "Docker deployment completed successfully!"
           echo "Service available at: http://${{ secrets.SERVER_HOST }}:8080"
+          echo "Image: $IMAGE"
