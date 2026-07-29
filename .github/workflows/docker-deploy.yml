@@ -20,34 +20,18 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build web-antd Docker image
+    - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./scripts/deploy/Dockerfile
-        build-args: |
-          BUILD_SCRIPT=build:antd
-          DIST_PATH=apps/web-antd/dist
         tags: ten-vue-admin-web-antd:latest
         load: true
-        cache-from: type=gha,scope=web-antd
-        cache-to: type=gha,mode=max,scope=web-antd
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
-    - name: Build playground Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./scripts/deploy/Dockerfile
-        build-args: |
-          BUILD_SCRIPT=build:play
-          DIST_PATH=playground/dist
-        tags: ten-vue-admin-playground:latest
-        load: true
-        cache-from: type=gha,scope=playground
-        cache-to: type=gha,mode=max,scope=playground
-
-    - name: Save and compress Docker images
-      run: docker save ten-vue-admin-web-antd:latest ten-vue-admin-playground:latest | gzip -1 > ten-vue-admin.tar.gz
+    - name: Save and compress Docker image
+      run: docker save ten-vue-admin-web-antd:latest | gzip -1 > ten-vue-admin.tar.gz
 
     - name: Upload Docker image artifact
       uses: actions/upload-artifact@v4
@@ -74,24 +58,17 @@ jobs:
         script: |
           cd /app/ten-vue-admin
           # 停止并删除旧容器
-          docker stop ten-vue-admin ten-vue-admin-playground || true
-          docker rm ten-vue-admin ten-vue-admin-playground || true
+          docker stop ten-vue-admin || true
+          docker rm ten-vue-admin || true
           # 解压并加载新镜像
           gzip -dc /tmp/ten-vue-admin.tar.gz | docker load
-          # 启动 web-antd
+          # 启动新容器
           docker run -d \
             --name ten-vue-admin \
             -p 8080:80 \
             --restart unless-stopped \
             ten-vue-admin-web-antd:latest
-          # 启动 playground
-          docker run -d \
-            --name ten-vue-admin-playground \
-            -p 8081:80 \
-            --restart unless-stopped \
-            ten-vue-admin-playground:latest
           # 清理临时文件
           rm -f /tmp/ten-vue-admin.tar.gz
           echo "Docker deployment completed successfully!"
-          echo "web-antd available at: http://${{ secrets.SERVER_HOST }}:8080"
-          echo "playground available at: http://${{ secrets.SERVER_HOST }}:8081"
+          echo "Service available at: http://${{ secrets.SERVER_HOST }}:8080"
