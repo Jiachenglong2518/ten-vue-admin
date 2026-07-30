@@ -9,9 +9,14 @@ import type { Ref } from 'vue';
 
 import type { ClassType, DeepPartial } from '@vben/types';
 
-import type { BaseFormComponentType, VbenFormProps } from '@vben-core/form-ui';
+import type {
+  BaseFormComponentType,
+  FormValues,
+  VbenFormProps,
+} from '@vben-core/form-ui';
 
 import type { VxeGridApi } from './api';
+import type { ViewedRowOptions } from './viewed-row';
 
 import { useVbenForm } from '@vben-core/form-ui';
 
@@ -42,6 +47,8 @@ export interface VxeGridProps<
   T extends Record<string, any> = any,
   D extends BaseFormComponentType = BaseFormComponentType,
   P extends Record<string, any> = Record<never, never>,
+  TFormValues extends FormValues = FormValues,
+  TSubmitValues extends FormValues = TFormValues,
 > {
   /**
    * 数据
@@ -74,7 +81,7 @@ export interface VxeGridProps<
   /**
    * 表单配置
    */
-  formOptions?: VbenFormProps<D, P>;
+  formOptions?: VbenFormProps<D, P, TFormValues, TSubmitValues>;
   /**
    * 显示搜索表单
    */
@@ -83,15 +90,23 @@ export interface VxeGridProps<
    * 搜索表单与表格主体之间的分隔条
    */
   separator?: boolean | SeparatorOptions;
+  /**
+   * 已读行功能
+   */
+  viewedRowOptions?: boolean | ViewedRowOptions<T>;
 }
 
 export type ExtendedVxeGridApi<
   D extends Record<string, any> = any,
   F extends BaseFormComponentType = BaseFormComponentType,
   P extends Record<string, any> = Record<never, never>,
-> = VxeGridApi<D, F, P> & {
-  useStore: <S = NoInfer<VxeGridProps<D, F, P>>>(
-    selector?: (state: NoInfer<VxeGridProps<D, F, P>>) => S,
+  TFormValues extends FormValues = FormValues,
+  TSubmitValues extends FormValues = TFormValues,
+> = VxeGridApi<D, F, P, TFormValues, TSubmitValues> & {
+  useStore: <S = NoInfer<VxeGridProps<D, F, P, TFormValues, TSubmitValues>>>(
+    selector?: (
+      state: NoInfer<VxeGridProps<D, F, P, TFormValues, TSubmitValues>>,
+    ) => S,
   ) => Readonly<Ref<S>>;
 };
 

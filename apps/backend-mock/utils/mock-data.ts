@@ -19,6 +19,7 @@ export const MOCK_USERS: UserInfo[] = [
     realName: 'Vben',
     roles: ['super'],
     username: 'vben',
+    homePath: '/dashboard/workspace',
   },
   {
     id: 1,
@@ -26,7 +27,7 @@ export const MOCK_USERS: UserInfo[] = [
     realName: 'Admin',
     roles: ['admin'],
     username: 'admin',
-    homePath: '/workspace',
+    homePath: '/dashboard/workspace',
   },
   {
     id: 2,
@@ -34,7 +35,7 @@ export const MOCK_USERS: UserInfo[] = [
     realName: 'Jack',
     roles: ['user'],
     username: 'jack',
-    homePath: '/analytics',
+    homePath: '/dashboard/analytics',
   },
 ];
 
@@ -64,11 +65,11 @@ const dashboardMenus = [
     },
     name: 'Dashboard',
     path: '/dashboard',
-    redirect: '/analytics',
+    redirect: '/dashboard/analytics',
     children: [
       {
         name: 'Analytics',
-        path: '/analytics',
+        path: 'analytics',
         component: '/dashboard/analytics/index',
         meta: {
           affixTab: true,
@@ -77,7 +78,7 @@ const dashboardMenus = [
       },
       {
         name: 'Workspace',
-        path: '/workspace',
+        path: 'workspace',
         component: '/dashboard/workspace/index',
         meta: {
           title: 'page.dashboard.workspace',
@@ -248,7 +249,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
         title: 'demos.access.adminVisible',
       },
       name: 'AccessAdminVisibleDemo',
-      path: '/demos/access/admin-visible',
+      path: 'admin-visible',
     },
     super: {
       component: '/demos/access/super-visible',
@@ -257,7 +258,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
         title: 'demos.access.superVisible',
       },
       name: 'AccessSuperVisibleDemo',
-      path: '/demos/access/super-visible',
+      path: 'super-visible',
     },
     user: {
       component: '/demos/access/user-visible',
@@ -266,7 +267,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
         title: 'demos.access.userVisible',
       },
       name: 'AccessUserVisibleDemo',
-      path: '/demos/access/user-visible',
+      path: 'user-visible',
     },
   };
 
@@ -284,7 +285,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
       children: [
         {
           name: 'AccessDemos',
-          path: '/demos/access',
+          path: 'access',
           meta: {
             icon: 'mdi:cloud-key-outline',
             title: 'demos.access.backendPermissions',
@@ -293,7 +294,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
           children: [
             {
               name: 'AccessPageControlDemo',
-              path: '/demos/access/page-control',
+              path: 'page-control',
               component: '/demos/access/index',
               meta: {
                 icon: 'mdi:page-previous-outline',
@@ -302,7 +303,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
             },
             {
               name: 'AccessButtonControlDemo',
-              path: '/demos/access/button-control',
+              path: 'button-control',
               component: '/demos/access/button-control',
               meta: {
                 icon: 'mdi:button-cursor',
@@ -311,7 +312,7 @@ const createDemosMenus = (role: 'admin' | 'super' | 'user') => {
             },
             {
               name: 'AccessMenuVisible403Demo',
-              path: '/demos/access/menu-visible-403',
+              path: 'menu-visible-403',
               component: '/demos/access/menu-visible-403',
               meta: {
                 authority: ['no-body'],
@@ -365,18 +366,46 @@ export const MOCK_MENUS = [
 export const MOCK_MENU_LIST = [
   {
     id: 1,
-    name: 'Workspace',
+    name: 'Dashboard',
     status: 1,
-    type: 'menu',
-    icon: 'mdi:dashboard',
-    path: '/workspace',
-    component: '/dashboard/workspace/index',
+    type: 'catalog',
+    icon: 'lucide:layout-dashboard',
+    path: '/dashboard',
     meta: {
-      icon: 'carbon:workspace',
-      title: 'page.dashboard.workspace',
-      affixTab: true,
-      order: 0,
+      icon: 'lucide:layout-dashboard',
+      order: -1,
+      title: 'page.dashboard.title',
     },
+    children: [
+      {
+        id: 101,
+        pid: 1,
+        status: 1,
+        type: 'menu',
+        name: 'Analytics',
+        path: 'analytics',
+        component: '/dashboard/analytics/index',
+        meta: {
+          affixTab: true,
+          icon: 'lucide:area-chart',
+          title: 'page.dashboard.analytics',
+          keepAlive: true,
+        },
+      },
+      {
+        id: 102,
+        pid: 1,
+        status: 1,
+        type: 'menu',
+        name: 'Workspace',
+        path: 'workspace',
+        component: '/views/dashboard/workspace/index',
+        meta: {
+          icon: 'carbon:workspace',
+          title: 'page.dashboard.workspace',
+        },
+      },
+    ],
   },
   {
     id: 2,
