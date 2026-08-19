@@ -96,7 +96,7 @@ defineExpose({
     <slot name="title">
       <Title>
         <slot name="title">
-          {{ title || `${$t('authentication.welcomeBack')} 👋🏻` }}
+          {{ title || `${$t('authentication.welcomeBack')} 👋🏻1` }}
         </slot>
         <template #desc>
           <span class="text-muted-foreground">
